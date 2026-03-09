@@ -66,11 +66,19 @@ void Program::Update() {
         if (lives <= 0 && pauseFrames <= 0) gameOver = true;
         Projectile::CleanProjectiles();
         Projectile::ProjectileCollision();
+        //Added
+         while(score >= nextLifeScore){
+        if(lives < 5){
+            lives++;
+        }
+        nextLifeScore += 1000;
+    }
     }
 }
 
 void Program::Draw() {
     background.Draw();
+    DrawText(TextFormat("Score: %i", score), GetScreenWidth() - 180, 10, 30, WHITE); //Added
     if (pauseFrames <= 0 && !gameOver) player->draw();
     for (Animation& a : Animation::animations) a.draw();
 
@@ -94,7 +102,7 @@ void Program::ManageEnemyRespawns() {
 
     respawnCooldown -= 1;
     if (respawnCooldown <= 0) {
-        respawnCooldown = 1080;
+        respawnCooldown = std::max(1080 - score, 240); //Fixed
         for (std::pair<std::pair<float, float>, Enemy*>& p : Enemy::enemies) {
             if (!p.second && p.first.second != 150) {
                 int eType = GetRandomValue(1, 3);
@@ -155,6 +163,10 @@ void Program::KeyInputs() {
     if (!paused && !startup && IsKeyPressed('O')) gameOver = !gameOver;
     if (!gameOver && !paused && IsKeyPressed('I')) startup = !startup;
     if (IsKeyPressed('H')) HitBox::drawHitbox = !HitBox::drawHitbox;
+    //Added
+    if(!startup && !paused && !gameOver && IsKeyPressed('K')) {
+        score += 500;
+    }
     
     if (gameOver && IsKeyPressed(KEY_ENTER)) {
         gameOver = false;
@@ -190,7 +202,9 @@ void Program::Reset() {
     count = 0;
     delay = 0;
     lives = 3;
-    score = 0;
+    score = 0; //Added
+    nextLifeScore = 1000; //Added
+    
     Enemy::enemies.push_back(std::make_pair(
         std::make_pair(350.0f, 150.0f), 
         (Enemy*)new SpEnemy(350.0f, 150.0f)
