@@ -25,6 +25,7 @@ Program::Program() {
             new StdEnemy(x, y)
         });
     }
+    InitStars();
 }
 
 void Program::Update() {
@@ -33,6 +34,8 @@ void Program::Update() {
         if (Animation::animations[i].done) Animation::animations.erase(Animation::animations.begin() + i);
     }
     pauseFrames = std::max(pauseFrames - 1, 0);
+
+    UpdateStars();
 
     if (!startup && !paused && !gameOver && pauseFrames <= 0) {
         Enemy::ManageEnemies(player->hitBox);
@@ -78,6 +81,9 @@ void Program::Update() {
 
 void Program::Draw() {
     background.Draw();
+
+    DrawStars();
+
     DrawText(TextFormat("Score: %i", score), GetScreenWidth() - 180, 10, 30, WHITE); //Added
     if (pauseFrames <= 0 && !gameOver) player->draw();
     for (Animation& a : Animation::animations) a.draw();
@@ -144,6 +150,14 @@ void Program::DrawStartup() {
     DrawRectangle(0, 0, (float)GetScreenWidth(), (float)GetScreenHeight(), Color{0, 0, 0, 125});
     DrawText("Galaga", (GetScreenWidth() / 2 - 237), 75, 144, WHITE);
     DrawText("Press Enter", (GetScreenWidth() / 2) - 75, GetScreenHeight() / 2, 24, GRAY);
+
+    if(gameMode == 0){
+        DrawText("Mode: Normal", (GetScreenWidth()/2)-80, GetScreenHeight()/2 + 40, 24, GREEN);
+    } else {
+        DrawText("Mode: Hard", (GetScreenWidth()/2)-65, GetScreenHeight()/2 + 40, 24, RED);
+    }
+
+    DrawText("Press M to change mode", (GetScreenWidth()/2)-120, GetScreenHeight()/2 + 80, 20, LIGHTGRAY);
 }
 
 void Program::DrawPauseScreen() {
@@ -172,6 +186,9 @@ void Program::KeyInputs() {
         gameOver = false;
         Reset();
     }
+    if(startup && IsKeyPressed('M')) {
+        gameMode = 1 - gameMode;
+    }
 
     if (startup && IsKeyPressed(KEY_ENTER)) {
         startup = false;
@@ -197,13 +214,18 @@ void Program::Reset() {
     Enemy::enemies.clear();
     StdEnemy::attackInProgress = false;
     player = new Player((GetScreenWidth() / 2) - 15, GetScreenHeight() * 0.75f);
-    respawnCooldown = 1080;
-    respawns = 0;
     count = 0;
     delay = 0;
-    lives = 3;
     score = 0; //Added
     nextLifeScore = 1000; //Added
+
+    if(gameMode == 0){
+        respawnCooldown = 1080;
+        lives = 3;
+    } else {
+        respawnCooldown = 700;
+        lives = 2;
+    }
     
     Enemy::enemies.push_back(std::make_pair(
         std::make_pair(350.0f, 150.0f), 
@@ -223,5 +245,29 @@ void Program::Reset() {
             std::make_pair(x, y), 
             (Enemy*)new StdEnemy(x, y)
         ));
+    }
+}
+
+void Program::InitStars(){
+    for (int i = 0; i < STAR_COUNT; i++) {
+        starX[i] = GetRandomValue(0, GetScreenWidth());
+        starY[i] = GetRandomValue(0, GetScreenHeight());
+    }
+}
+
+void Program::UpdateStars() {
+    for (int i = 0; i < STAR_COUNT; i++) {
+        starY[i] += 1.5f;
+
+        if (starY[i] > GetScreenHeight()) {
+            starY[i] = 0;
+            starY[i] = GetRandomValue(0, GetScreenWidth());
+        }
+    }
+}
+
+void Program::DrawStars() {
+    for (int i = 0; i < STAR_COUNT; i++) {
+        DrawCircle((int)starX[i], (int) starY[i], 2, WHITE);
     }
 }

@@ -21,10 +21,19 @@ class Program {
         int pauseFrames = 0;
         int score = 0;  //Added
         int nextLifeScore = 1000;  //Added
+        int gameMode = 0;
 
         bool startup = true;
         bool paused = false;
         bool gameOver = false;
+
+        static const int STAR_COUNT = 100;
+        float starX[STAR_COUNT];
+        float starY[STAR_COUNT];
+
+        void InitStars();
+        void UpdateStars();
+        void DrawStars();
 
     public:
         Program();
