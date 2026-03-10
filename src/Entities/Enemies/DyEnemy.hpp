@@ -9,10 +9,7 @@ class DyEnemy : public Enemy {
         Rectangle sourceRect;
 
     public:
-        DyEnemy(float x, float y) : Enemy(x, y) { 
-            this->cooldown = GetRandomValue(90, 300);
-            this->health = 1; 
-        }
+        DyEnemy(float x, float y);
 
         void draw() override;
         void update(std::pair<float, float> pos, HitBox target) override;

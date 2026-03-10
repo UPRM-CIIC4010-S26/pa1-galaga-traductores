@@ -2,28 +2,35 @@
 #include "raylib.h"
 
 DyEnemy::DyEnemy(float x, float y) : Enemy(x, y) { 
-    this->cooldown = GetRandomValue(90, 300);
-    this->health = 1; 
+    this->cooldown = GetRandomValue(90, 300); 
 
-    if (GetRandomValue(0, 1) == 0) {
+    int rarity = GetRandomValue(1, 100);
+    if (rarity <= 20) {
+        this->sourceRect = {155, 129, 13, 13};
+        this->health = 3;
+        this->color = YELLOW;
+    } else if (rarity <= 55) {
         this->sourceRect = {2, 128, 13, 14};
+        this->color = WHITE;
+        this->health = 1;
     } else {
         this->sourceRect = {2, 147, 13, 13};
+        this->color = WHITE;
+        this->health = 1;
     }
 }
 
 void DyEnemy::draw() {
     if (HitBox::drawHitbox) this->hitBox.draw();
     DrawTexturePro(
-        ImageManager::SpriteSheet, 
-        this->sourceRect, 
-        Rectangle{this->position.first + 15, this->position.second + 15, 30, 30}, 
-        Vector2{15, 15}, 
-        this->aimAngle, 
-        WHITE
-    );
+    ImageManager::SpriteSheet, 
+    this->sourceRect, 
+    Rectangle{this->position.first + 15, this->position.second + 15, 30, 30}, 
+    Vector2{15, 15}, 
+    this->aimAngle, 
+    this->color
+);
 }
-
 void DyEnemy::update(std::pair<float, float> pos, HitBox target) {
     this->cooldown--;
 
